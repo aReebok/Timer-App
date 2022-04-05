@@ -8,7 +8,7 @@ import styles from './styles/Login.style';
 const Login = ({ navigation }) => {
   
   // var pressed = null;
-  const url = "http://192.168.1.214:3001";
+  const  url = 'http://10.42.58.114:3001';
   const formContentType = "application/x-www-form-urlencoded;charset=UTF-8";
   const handlePressOnLoadInfo = async (op, method = '', params = {}) => {
     if (method != '')

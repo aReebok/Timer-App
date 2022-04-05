@@ -1,7 +1,8 @@
 import React, { Component, useState, useEffect } from 'react';
-import { View, Text, Modal, StyleSheet, Button, 
+import { View, Text, StyleSheet, Button, 
     ImageBackgroundBase, Alert, TouchableOpacity } from 'react-native';
 import { Snackbar } from 'react-native-paper'
+import LogFormModal from './LogFormModal'
 
 export class TimeButton extends Component {   
     constructor(props) {
@@ -11,7 +12,16 @@ export class TimeButton extends Component {
           snackbarVisible: false,
           snackMsg:'',
           pressed: this.props.pressed,
-          url: 'http://192.168.1.214:3001',
+          
+          //prev infor
+          prevTime: null,
+          prevStart: null,
+          prevTitle: "No title",
+          prevDescrip: "No descriptions",
+          prevTag: "other",
+
+          //url: 'http://192.168.1.214:3001',
+          url: 'http://10.42.58.114:3001',
           formContentType: "application/x-www-form-urlencoded;charset=UTF-8",
         };
      
@@ -31,9 +41,29 @@ export class TimeButton extends Component {
             })
             .catch((error) => {
                 console.error(error);
-
             });
       } // 
+
+      logActivity = (title, descrip, tag) => {
+        const { user } = this.props;
+        this.setState({
+            prevTitle: title,
+            prevDescrip: descrip,
+            prevTag: tag,
+        });
+        this.handlePress('activity/log', 'POST', {
+            headers: {
+                "Content-type": this.state.formContentType
+            }, 
+            body: `mid=${`${user.id}`}&date=${this.state.prevStart}&duration=${this.state.prevTime}&title=${title}&descrip=${descrip}&tag=${tag}`
+        });   
+        console.log("Activity LOGGED in logform modal");
+
+        this.props.addToLog(title);
+        this.setState({snackMsg: 'Log saved in database!'});
+        this.setState( state => ({ snackbarVisible: true }) ); 
+      }
+      
 
       handlePressStop = (op, method = '', params = {}) => {
         if (method != '')
@@ -65,6 +95,8 @@ export class TimeButton extends Component {
                     // ]);
                 
                     console.log(seconds);
+                    this.setState({prevTime: seconds});
+                    this.setState({prevStart: json_resp.start})
                 } catch (error) {
                         console.log(error);
                 }                
@@ -163,22 +195,9 @@ export class TimeButton extends Component {
         console.log("pressed from timebutton.js:" + pressed)
         return(
             <View style={styles.container}>  
-                <Modal visible={this.state.modalVisible}
-                    animationType='slide'
-                    transparent={false}
-                    presentationStyle='formSheet'>
-                    <View>
-                        <Text>
-                            SAVE TIME
-                        </Text>
-                        <Button
-                            title='CLOSE'
-                            onPress={()=> {
-                                this.setState({modalVisible: false})
-                            }}
-                        />
-                    </View>
-                </Modal>
+                <LogFormModal visible={this.state.modalVisible} 
+                    setModalVisible={this.setModalVisible} logActivity={this.logActivity}  user={user}
+                    prevTime={this.state.prevTime} prevStart={this.state.prevStart}/>
                 <View style={[styles.view, {marginTop: -15, paddingLeft: 50}]}> 
                     <TouchableOpacity
                         onPress={()=>{{ this.state.pressed ? this.handleStopButton() : this.handleStartButton()} }}

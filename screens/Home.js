@@ -10,11 +10,17 @@ export class Home extends Component {
     constructor (props) {
         super(props);
         this.state = {
-            logActivities: ['padupauli','namaste','omgomg','this is fun','activity','namak'],
-            url: 'http://192.168.1.214:3001',
+            logActivities: [],
+            url: 'http://10.42.58.114:3001',
             formContentType: "application/x-www-form-urlencoded;charset=UTF-8",
         }; 
     }
+    
+
+    addToLog = (title) => {
+        this.setState({logActivities: [...this.state.logActivities, title]});
+    }
+
 
     render () {
         const { user, pressed } = this.props.route.params;
@@ -29,7 +35,8 @@ export class Home extends Component {
                     </Text>       
                 </View>
                 <View style={[styles.homeBody,{backgroundColor: '#5B85AA'}]}>
-                    <TimeButton user={user} pressed={pressed}/></View>
+                    <TimeButton user={user} pressed={pressed}
+                            addToLog={this.addToLog}/></View>
                 <View style={styles.homeFooter}>
                     <View style={styles.homeFooter2}>
                         <Text style={[styles.title, {color: '#19895a', fontWeight: 'bold'}]}>TIME LOG</Text>     
